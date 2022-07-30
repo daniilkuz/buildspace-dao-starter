@@ -26,6 +26,8 @@ yarn-error.log*
 
 node_modules
 .env
+
 # others
 editionDropAddress.txt
 tokenAddress.txt
+voteContractAddress.txt
