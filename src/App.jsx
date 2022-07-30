@@ -3,8 +3,10 @@ import {
   useAddress,
   useEditionDrop,
   useToken,
+  useVote,
 } from "@thirdweb-dev/react";
 import { useState, useEffect, useMemo } from "react";
+import { AddressZero } from "@ethersproject/constants";
 // import { readFileSync } from "fs";
 
 const App = () => {
@@ -18,6 +20,8 @@ const App = () => {
     "0x4966923aE0e5C063533c31D606F5714de78E6C6f"
   );
   const token = useToken("0xf602fF8aE812f9Cb26741AC4a348621221a3AbeA");
+  const vote = useVote("0x607fE9c731093d4c33a8fBF6DAE3A5F51132dFad");
+
   const [hasClaimedNFT, setHasClaimedNFT] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
 
@@ -27,6 +31,53 @@ const App = () => {
   const shortenAddress = (str) => {
     return str.substring(0, 6) + "..." + str.substring(str.length - 4);
   };
+
+  const [proposals, setProposals] = useState([]);
+  const [isVoting, setIsVoting] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+
+  useEffect(() => {
+    if (!hasClaimedNFT) {
+      return;
+    }
+
+    const getAllProposals = async () => {
+      try {
+        const proposals = await vote.getAll();
+        setProposals(proposals);
+        console.log("🌈 Proposals:", proposals);
+      } catch (error) {
+        console.error("failed to get proposals", error);
+      }
+    };
+    getAllProposals();
+  }, [hasClaimedNFT, vote]);
+
+  useEffect(() => {
+    if (!hasClaimedNFT) {
+      return;
+    }
+
+    if (!proposals.length) {
+      return;
+    }
+
+    const checkIfUserHasVoted = async () => {
+      try {
+        const hasVoted = await vote.hasVoted(proposals[0].proposalId, address);
+        setHasVoted(hasVoted);
+        if (hasVoted) {
+          console.log("🥵 User has already voted");
+        } else {
+          console.log("🙂 User has not voted yet");
+        }
+      } catch (error) {
+        console.error("Failed to check if wallet has voted", error);
+      }
+    };
+
+    checkIfUserHasVoted();
+  }, [hasClaimedNFT, proposals, address, vote]);
 
   useEffect(() => {
     if (!hasClaimedNFT) {
