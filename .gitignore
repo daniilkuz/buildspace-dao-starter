@@ -31,3 +31,4 @@ node_modules
 editionDropAddress.txt
 tokenAddress.txt
 voteContractAddress.txt
+yarn.lock
